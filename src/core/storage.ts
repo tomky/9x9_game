@@ -19,7 +19,7 @@ export function defaultSave(): SaveData {
     stats: emptyStats(),
     unlockedSkills: [],
     pp: {},
-    settings: { answerMode: 'auto', sound: true },
+    settings: { answerMode: 'auto', sound: true, gemStyle: 'pokemon' },
   };
 }
 

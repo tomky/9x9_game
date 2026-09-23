@@ -7,6 +7,7 @@ import { createRng, randomSeed } from './core/rng';
 import { findValidMove } from './core/board';
 import { isValidTarget, previewCells, SKILLS } from './core/skills';
 import { Renderer } from './render/renderer';
+import { SpriteStore } from './render/pokemon';
 import { Hud } from './ui/hud';
 import { QuestionModal } from './ui/questionModal';
 import { Screens } from './ui/screens';
@@ -21,6 +22,8 @@ const modal = new QuestionModal(createRng(randomSeed()), sound);
 
 let save = loadSave();
 sound.enabled = save.settings.sound;
+const spriteStore = new SpriteStore();
+void spriteStore.load(); // 背景載入寶可夢圖案，載入前 / 失敗時畫幾何寶石
 let hover: Pos | null = null;
 
 const hooks: GameHooks = {
@@ -61,7 +64,7 @@ const renderer = new Renderer(canvas, () => ({
   selected: game.selected,
   preview: game.state === 'skill' && game.activeSkill && hover && isValidTarget(game.board, game.activeSkill, hover) ? previewCells(game.board, game.activeSkill, hover) : [],
   dimmed: game.state === 'skill',
-}));
+}), spriteStore, () => save.settings.gemStyle === 'pokemon');
 const hud = new Hud(game, (id) => {
   if (!game.save.unlockedSkills.includes(id as SkillId)) return;
   if (game.state === 'skill' && game.activeSkill === id) {

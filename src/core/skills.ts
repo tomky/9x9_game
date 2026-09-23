@@ -26,7 +26,7 @@ export const SKILLS: Record<SkillId, SkillDef> = {
   5: { id: 5, name: '怪力', en: 'Strength', obstacle: 'boulder', target: 'boulder', maxPP: 2, startPP: 1, description: '搬走一顆大岩石' },
   6: { id: 6, name: '衝浪', en: 'Surf', obstacle: 'water', target: 'row', maxPP: 2, startPP: 1, description: '沖走整列水窪並清除整列寶石' },
   7: { id: 7, name: '火焰放射', en: 'Flamethrower', obstacle: 'ice', target: 'col', maxPP: 2, startPP: 1, description: '融化整行冰塊並清除整行寶石' },
-  8: { id: 8, name: '暴風雪', en: 'Blizzard', obstacle: null, target: 'gem', maxPP: 2, startPP: 1, description: '清除全盤同色寶石' },
+  8: { id: 8, name: '暴風雪', en: 'Blizzard', obstacle: null, target: 'gem', maxPP: 2, startPP: 1, description: '清除全盤同一種寶石' },
   9: { id: 9, name: '十萬伏特', en: 'Thunderbolt', obstacle: null, target: 'cell3x3', maxPP: 1, startPP: 1, description: '轟掉 3×3 內所有寶石與障礙' },
 };
 

@@ -4,6 +4,7 @@ import { Board, BLOCKER_KINDS, BOARD_W, Gem, Pos } from '../core/types';
 import { getCell, forEachCell } from '../core/board';
 import { ResolveEvent } from '../core/resolve';
 import { drawBlocker, drawGem, drawOverlay, roundRect } from './sprites';
+import { pokemonIdFor, SpriteStore } from './pokemon';
 import { easeIn, easeInOut, easeOut, Tweens, wait } from './tweens';
 
 interface GemView {
@@ -49,7 +50,12 @@ export class Renderer {
   private dpr = 1;
   private getState: () => RenderState;
 
-  constructor(private canvas: HTMLCanvasElement, getState: () => RenderState) {
+  constructor(
+    private canvas: HTMLCanvasElement,
+    getState: () => RenderState,
+    private sprites: SpriteStore,
+    private useSprites: () => boolean,
+  ) {
     this.ctx = canvas.getContext('2d')!;
     this.getState = getState;
     this.resize();
@@ -260,6 +266,7 @@ export class Renderer {
     });
 
     // 寶石（黑暗覆蓋的不畫）
+    const usePokemon = this.useSprites() && this.sprites.ready;
     const sorted = [...this.views.values()].sort((a, b) => a.y - b.y);
     for (const v of sorted) {
       const bx = Math.round(v.x);
@@ -267,7 +274,8 @@ export class Renderer {
       const ob = getCell(board, bx, by)?.obstacle;
       if (ob?.kind === 'dark' && !this.tweens.active) continue;
       const [dx, dy] = this.shakeOffset(bx, by, now);
-      drawGem(ctx, v.gem, (v.x + 0.5) * cell + dx, (v.y + 0.5) * cell + dy, cell, v.scale, v.alpha);
+      const sprite = usePokemon ? this.sprites.get(pokemonIdFor(v.gem)) : null;
+      drawGem(ctx, v.gem, (v.x + 0.5) * cell + dx, (v.y + 0.5) * cell + dy, cell, v.scale, v.alpha, sprite);
     }
 
     // 覆蓋障礙

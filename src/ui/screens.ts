@@ -144,16 +144,30 @@ export class Screens {
         </select>
       </div>
       <div class="setting-row">
+        <label>${T.gemStyleLabel}</label>
+        <select id="set-style">
+          <option value="pokemon">${T.gemStylePokemon}</option>
+          <option value="gem">${T.gemStyleGem}</option>
+        </select>
+      </div>
+      <div class="setting-row">
         <label>${T.soundLabel}</label>
         <select id="set-sound"><option value="1">${T.on}</option><option value="0">${T.off}</option></select>
       </div>
       <button class="btn secondary" data-a="back">${T.back}</button>
       <br/><button class="btn secondary small" data-a="reset" style="color:var(--danger)">${T.reset}</button>
+      <p style="font-size:11px;margin-top:14px">${T.spriteCredit}</p>
     `);
     const mode = card.querySelector<HTMLSelectElement>('#set-mode')!;
     const sound = card.querySelector<HTMLSelectElement>('#set-sound')!;
+    const style = card.querySelector<HTMLSelectElement>('#set-style')!;
     mode.value = save.settings.answerMode;
     sound.value = save.settings.sound ? '1' : '0';
+    style.value = save.settings.gemStyle;
+    style.addEventListener('change', () => {
+      save.settings.gemStyle = style.value as SaveData['settings']['gemStyle'];
+      on.change();
+    });
     mode.addEventListener('change', () => {
       save.settings.answerMode = mode.value as SaveData['settings']['answerMode'];
       on.change();

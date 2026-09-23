@@ -99,9 +99,12 @@ export interface NumberStats {
   bestStreak: number;
 }
 
+export type GemStyle = 'pokemon' | 'gem';
+
 export interface Settings {
   answerMode: 'auto' | AnswerMode;
   sound: boolean;
+  gemStyle: GemStyle;
 }
 
 export interface SaveData {
