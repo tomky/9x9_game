@@ -46,6 +46,11 @@ export function allCombosDone(s: NumberStats): boolean {
   return NUMBERS.every((b) => (s.combos[b]?.correct ?? 0) >= 1);
 }
 
+/** 尚未答對過的 b（2..9）。 */
+export function missingCombos(s: NumberStats): number[] {
+  return NUMBERS.filter((b) => (s.combos[b]?.correct ?? 0) < 1);
+}
+
 export function combosDone(s: NumberStats): number {
   return NUMBERS.filter((b) => (s.combos[b]?.correct ?? 0) >= 1).length;
 }

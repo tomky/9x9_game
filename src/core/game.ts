@@ -25,7 +25,7 @@ import {
 import { findMatches } from './match';
 import { ClearPlan, swapComboPlan } from './specials';
 import { placeObstacles } from './obstacles';
-import { makeQuestion } from './questions';
+import { makeQuestion, makeTargetedQuestion } from './questions';
 import { levelConfig, questionWeights } from './level';
 import { applyGravity, applyStep, planStep, ResolveEvent } from './resolve';
 import { applySkill, hasValidTarget, isValidTarget, SKILLS } from './skills';
@@ -33,6 +33,9 @@ import { recordAnswer, syncUnlocks } from './mastery';
 import { MOVE_LEFT_BONUS, MOVES_PER_CORRECT, OBSTACLE_SCORE } from './scoring';
 import { writeSave } from './storage';
 import { createRng, randomSeed, Rng } from './rng';
+
+/** 針對性出題的比例。 */
+export const TARGETED_QUESTION_RATE = 0.5;
 
 export type GameState = 'idle' | 'busy' | 'question' | 'skill' | 'won' | 'lost';
 
@@ -123,6 +126,11 @@ export class Game {
   }
 
   private newQuestion(): Question {
+    // 一半的題目針對「還沒熟練的數字缺的組合」出題，避免最後一格一直等不到
+    if (this.rng.next() < TARGETED_QUESTION_RATE) {
+      const q = makeTargetedQuestion(this.config.numbers, this.save.stats, this.rng);
+      if (q) return q;
+    }
     return makeQuestion(this.config.numbers, this.rng, questionWeights(this.config, this.save.stats), (a, b) => {
       const c = this.save.stats[a]?.combos[b]?.correct ?? 0;
       return 1 / (1 + c); // 沒答對過的組合權重最高

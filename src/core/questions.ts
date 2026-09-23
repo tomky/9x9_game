@@ -1,6 +1,7 @@
 // 出題、干擾選項、提示。
 
-import { Question } from './types';
+import { NumberStats, Question } from './types';
+import { isMastered, missingCombos } from './mastery';
 import { Rng } from './rng';
 
 /**
@@ -48,6 +49,32 @@ export function makeQuestion(
     }
   }
   // 隨機決定顯示順序（a×b 或 b×a），統計時兩邊都算
+  return rng.next() < 0.5 ? { a, b, answer: a * b } : { a: b, b: a, answer: a * b };
+}
+
+/**
+ * 針對性出題：在本關開放的數字中，挑一個還沒熟練的數字，
+ * 優先出它「還沒答對過」的組合（缺得最少的數字優先，讓玩家能把最後幾格補齊）；
+ * 組合都齊了但連續答對數不足的，就出它任一題。沒有可針對的數字時回傳 null。
+ */
+export function makeTargetedQuestion(numbers: number[], stats: Record<number, NumberStats>, rng: Rng): Question | null {
+  const pending = numbers.filter((n) => stats[n] && !isMastered(stats[n]));
+  if (pending.length === 0) return null;
+  const withMissing = pending
+    .map((n) => ({ n, missing: missingCombos(stats[n]) }))
+    .filter((x) => x.missing.length > 0)
+    .sort((x, y) => x.missing.length - y.missing.length);
+  let a: number;
+  let b: number;
+  if (withMissing.length > 0) {
+    const best = withMissing[0].missing.length;
+    const pick = rng.pick(withMissing.filter((x) => x.missing.length === best));
+    a = pick.n;
+    b = rng.pick(pick.missing);
+  } else {
+    a = rng.pick(pending);
+    b = 2 + rng.int(8);
+  }
   return rng.next() < 0.5 ? { a, b, answer: a * b } : { a: b, b: a, answer: a * b };
 }
 

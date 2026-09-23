@@ -2,7 +2,7 @@
 
 import { Game } from '../core/game';
 import { SKILL_IDS, SKILLS } from '../core/skills';
-import { combosDone, isMastered, STREAK_REQUIRED } from '../core/mastery';
+import { combosDone, missingCombos, STREAK_REQUIRED } from '../core/mastery';
 import { SKILL_EMOJI } from '../render/sprites';
 import { T } from '../i18n/zh-TW';
 
@@ -53,10 +53,15 @@ export class Hud {
       const usable = unlocked && g.canUseSkill(id);
       const cls = ['skill', unlocked ? '' : 'locked', unlocked && !usable ? 'disabled' : '', g.activeSkill === id ? 'active' : ''].join(' ');
       const ppDots = unlocked ? '●'.repeat(pp) + '○'.repeat(def.maxPP - pp) : '';
-      const progress = unlocked
-        ? `<div class="skill-pp">${ppDots}</div>`
-        : `<div class="skill-progress">${combosDone(stats)}/8 · ${Math.min(stats.bestStreak, STREAK_REQUIRED)}/${STREAK_REQUIRED}</div>`;
-      const title = unlocked ? `${def.name}：${def.description}` : `${T.skillLocked(id)}${isMastered(stats) ? '' : ''}`;
+      const missing = missingCombos(stats);
+      const streakOk = stats.bestStreak >= STREAK_REQUIRED;
+      let progressText = `${combosDone(stats)}/8 · ${Math.min(stats.bestStreak, STREAK_REQUIRED)}/${STREAK_REQUIRED}`;
+      if (missing.length > 0 && missing.length <= 2) progressText = T.skillMissing(id, missing);
+      else if (missing.length === 0 && !streakOk) progressText = T.skillStreakLeft(STREAK_REQUIRED - stats.bestStreak);
+      const progress = unlocked ? `<div class="skill-pp">${ppDots}</div>` : `<div class="skill-progress">${progressText}</div>`;
+      const title = unlocked
+        ? `${def.name}：${def.description}`
+        : T.skillLockedDetail(id, def.name, missing, stats.bestStreak, STREAK_REQUIRED);
       return `<div class="${cls}" data-id="${id}" title="${title}">
         <div class="skill-num">${id}</div>
         <div class="skill-icon">${unlocked ? SKILL_EMOJI[id] : '🔒'}</div>

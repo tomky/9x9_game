@@ -45,6 +45,10 @@ export const T = {
   ok: '太棒了',
 
   skillLocked: (n: number) => `熟練 ${n} 的乘法解鎖`,
+  skillMissing: (n: number, missing: number[]) => `差 ${missing.map((b) => `${n}×${b}`).join('、')}`,
+  skillStreakLeft: (left: number) => `再連對 ${left} 題`,
+  skillLockedDetail: (n: number, name: string, missing: number[], best: number, need: number) =>
+    `${name}：熟練 ${n} 的乘法後解鎖。\n條件 1：${n}×2～${n}×9 每一題都答對過（${missing.length ? '還差 ' + missing.map((b) => `${n}×${b}`).join('、') : '✔ 完成'}）\n條件 2：${n} 的題目連續答對 ${need} 題，答錯會重算（目前最佳 ${Math.min(best, need)}/${need}）`,
   skillTargetHint: {
     cell3x3: '點選 3×3 範圍的中心',
     row: '點選一列',

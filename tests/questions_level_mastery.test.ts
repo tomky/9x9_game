@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeChoices, makeQuestion, makeHint } from '../src/core/questions';
+import { makeChoices, makeQuestion, makeHint, makeTargetedQuestion } from '../src/core/questions';
 import { levelConfig, numbersForLevel, questionWeights } from '../src/core/level';
 import { obstacleCounts, OBSTACLE_INTRO_LEVEL } from '../src/core/obstacles';
 import { emptyStats, isMastered, recordAnswer, syncUnlocks, STREAK_REQUIRED } from '../src/core/mastery';
@@ -22,6 +22,30 @@ describe('questions', () => {
       const q = makeQuestion([7], rng, undefined, (_a, b) => (b === 6 ? 1 : 0));
       expect([q.a, q.b].sort()).toEqual([6, 7]);
     }
+  });
+
+  it('針對性出題：優先出缺得最少的數字還沒答對的組合', () => {
+    const stats = emptyStats();
+    // 2 只差 2×7；3 差很多
+    for (const b of [2, 3, 4, 5, 6, 8, 9]) recordAnswer(stats, { a: 2, b, answer: 2 * b }, true);
+    const rng = createRng(11);
+    for (let i = 0; i < 30; i++) {
+      const q = makeTargetedQuestion([2, 3, 4], stats, rng)!;
+      expect([q.a, q.b].sort()).toEqual([2, 7]);
+    }
+  });
+
+  it('針對性出題：組合齊了但連續答對不足時仍出該數字；全部熟練回傳 null', () => {
+    const stats = emptyStats();
+    for (const b of [2, 3, 4, 5, 6, 7, 8, 9]) {
+      recordAnswer(stats, { a: 2, b, answer: 2 * b }, true);
+      recordAnswer(stats, { a: 2, b, answer: 2 * b }, false); // streak 歸零
+    }
+    const rng = createRng(2);
+    const q = makeTargetedQuestion([2], stats, rng)!;
+    expect([q.a, q.b]).toContain(2);
+    stats[2].bestStreak = 5;
+    expect(makeTargetedQuestion([2], stats, rng)).toBeNull();
   });
 
   it('四選一：4 個不重複、含正解、皆為正數', () => {
