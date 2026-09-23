@@ -25,7 +25,7 @@ export const T = {
   shuffle: '沒有可消除的了，重新洗牌！',
 
   question: '請回答',
-  correct: '答對了！',
+  correct: '答對了！步數 +1',
   wrong: (a: number, b: number, ans: number) => `答錯了… ${a} × ${b} = ${ans}`,
   keypadConfirm: '確定',
   keypadDelete: '刪除',

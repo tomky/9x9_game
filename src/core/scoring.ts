@@ -14,6 +14,8 @@ export const OBSTACLE_SCORE: Record<ObstacleKind, number> = {
   boulder: 150,
 };
 export const MOVE_LEFT_BONUS = 100;
+/** 答對一題補回的步數。 */
+export const MOVES_PER_CORRECT = 1;
 
 export function comboMultiplier(combo: number): number {
   return 1 + 0.5 * Math.max(0, combo - 1);

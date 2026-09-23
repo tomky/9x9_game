@@ -30,7 +30,7 @@ import { levelConfig, questionWeights } from './level';
 import { applyGravity, applyStep, planStep, ResolveEvent } from './resolve';
 import { applySkill, hasValidTarget, isValidTarget, SKILLS } from './skills';
 import { recordAnswer, syncUnlocks } from './mastery';
-import { MOVE_LEFT_BONUS, OBSTACLE_SCORE } from './scoring';
+import { MOVE_LEFT_BONUS, MOVES_PER_CORRECT, OBSTACLE_SCORE } from './scoring';
 import { writeSave } from './storage';
 import { createRng, randomSeed, Rng } from './rng';
 
@@ -308,6 +308,7 @@ export class Game {
     const correct = answer === q.answer;
     if (correct) {
       this.answered.correct++;
+      this.movesLeft += MOVES_PER_CORRECT;
       for (const id of this.save.unlockedSkills) {
         this.pp[id] = Math.min(SKILLS[id].maxPP, (this.pp[id] ?? 0) + 1);
       }
