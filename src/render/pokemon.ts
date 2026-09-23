@@ -55,16 +55,19 @@ export function allPokemonIds(): number[] {
   return ids;
 }
 
-/** 平行載入所有 sprite；單張失敗只記錄，不影響其他。 */
+/** 裁掉透明留白後的圖案。 */
+export type Sprite = HTMLCanvasElement | HTMLImageElement;
+
+/** 平行載入所有 sprite 並裁掉四周透明留白；單張失敗只記錄，不影響其他。 */
 export class SpriteStore {
-  private images = new Map<number, HTMLImageElement>();
+  private images = new Map<number, Sprite>();
   private loading: Promise<void> | null = null;
 
   get ready(): boolean {
     return this.images.size > 0;
   }
 
-  get(id: number): HTMLImageElement | null {
+  get(id: number): Sprite | null {
     return this.images.get(id) ?? null;
   }
 
@@ -78,7 +81,7 @@ export class SpriteStore {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
-        this.images.set(id, img);
+        this.images.set(id, cropTransparent(img));
         resolve();
       };
       img.onerror = () => {
@@ -87,5 +90,48 @@ export class SpriteStore {
       };
       img.src = spriteUrl(id);
     });
+  }
+}
+
+/**
+ * 把圖片四周的透明留白裁掉（Gen V sprite 角色只佔中間約一半）。
+ * 跨域取像素失敗時退回原圖。
+ */
+export function cropTransparent(img: HTMLImageElement, margin = 1): Sprite {
+  try {
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    const src = document.createElement('canvas');
+    src.width = w;
+    src.height = h;
+    const sctx = src.getContext('2d')!;
+    sctx.drawImage(img, 0, 0);
+    const data = sctx.getImageData(0, 0, w, h).data;
+    let minX = w;
+    let minY = h;
+    let maxX = -1;
+    let maxY = -1;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (data[(y * w + x) * 4 + 3] > 8) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < 0) return img;
+    minX = Math.max(0, minX - margin);
+    minY = Math.max(0, minY - margin);
+    maxX = Math.min(w - 1, maxX + margin);
+    maxY = Math.min(h - 1, maxY + margin);
+    const out = document.createElement('canvas');
+    out.width = maxX - minX + 1;
+    out.height = maxY - minY + 1;
+    out.getContext('2d')!.drawImage(src, minX, minY, out.width, out.height, 0, 0, out.width, out.height);
+    return out;
+  } catch {
+    return img;
   }
 }

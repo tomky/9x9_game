@@ -48,6 +48,8 @@ npm run preview
 | 紫 | 鬼斯 | 鬼斯通 | 耿鬼 |
 | 彩虹 | 夢幻 | | |
 
+每種顏色的底色形狀也不同（圓 / 圓角方 / 菱形 / 六角 / 八角 / 五角），色相相近時可以靠形狀分辨。
+
 圖檔在執行時從 [PokeAPI/sprites](https://github.com/PokeAPI/sprites) 載入，不包含在本 repo；載入失敗時自動退回幾何寶石。
 寶可夢圖像版權屬 Nintendo / Creatures Inc. / GAME FREAK inc.，本專案僅供學習用途。
 
