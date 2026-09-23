@@ -1,0 +1,80 @@
+// 所有 UI 文字集中在這裡。
+
+export const T = {
+  title: '九九寶石',
+  subtitle: '消寶石・練乘法・學技能',
+  start: '開始新遊戲',
+  continue: (level: number) => `繼續（第 ${level} 關）`,
+  progress: '熟練進度',
+  settings: '設定',
+  back: '返回',
+  reset: '清除所有進度',
+  resetConfirm: '確定要清除所有進度嗎？技能與紀錄都會消失。',
+
+  levelIntro: (level: number) => `第 ${level} 關`,
+  numbersInPlay: '本關乘法',
+  target: '目標分數',
+  moves: '步數',
+  obstacles: '障礙',
+  go: '出發！',
+
+  score: '分數',
+  movesLeft: '剩餘步數',
+  obstaclesLeft: '剩餘障礙',
+  combo: (n: number) => `連鎖 ×${n}`,
+  shuffle: '沒有可消除的了，重新洗牌！',
+
+  question: '請回答',
+  correct: '答對了！',
+  wrong: (a: number, b: number, ans: number) => `答錯了… ${a} × ${b} = ${ans}`,
+  keypadConfirm: '確定',
+  keypadDelete: '刪除',
+  hint: '提示',
+
+  win: '過關！',
+  lose: '沒有步數了…',
+  nextLevel: '下一關',
+  retry: '再試一次',
+  toTitle: '回標題',
+  moveBonus: (n: number, bonus: number) => `剩餘 ${n} 步 +${bonus}`,
+  levelScore: '本關分數',
+  answered: (c: number, w: number) => `答對 ${c} 題・答錯 ${w} 題`,
+
+  unlock: '獲得新技能！',
+  unlockDesc: (n: number, name: string) => `你已熟練 ${n} 的乘法，學會了「${name}」`,
+  ok: '太棒了',
+
+  skillLocked: (n: number) => `熟練 ${n} 的乘法解鎖`,
+  skillTargetHint: {
+    cell3x3: '點選 3×3 範圍的中心',
+    row: '點選一列',
+    col: '點選一行',
+    gem: '點選一顆寶石（清除同色）',
+    boulder: '點選一顆大岩石',
+    none: '',
+  } as Record<string, string>,
+  cancel: '取消',
+  pp: 'PP',
+
+  obstacleNames: {
+    tree: '小樹',
+    rock: '石頭',
+    dark: '黑暗',
+    boulder: '大岩石',
+    water: '水窪',
+    ice: '冰塊',
+  } as Record<string, string>,
+
+  answerModeAuto: '自動（第 9 關起用鍵盤）',
+  answerModeChoice: '一律四選一',
+  answerModeKeypad: '一律鍵盤輸入',
+  answerModeLabel: '答題方式',
+  soundLabel: '音效',
+  on: '開',
+  off: '關',
+
+  progressTitle: '九九乘法熟練進度',
+  progressHint: '每一格 = 答對過的次數；連續答對 5 題且整排都答對過就會解鎖技能',
+  streak: '連續',
+  mastered: '已熟練',
+};
