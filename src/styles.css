@@ -527,3 +527,58 @@ body {
     font-size: 17px;
   }
 }
+
+/* ---------- 寶可夢圖示（img + emoji 備援） ---------- */
+.pk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  vertical-align: middle;
+}
+.pk img {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+}
+.pk .pk-emoji {
+  display: none;
+}
+.pk.fallback img {
+  display: none;
+}
+.pk.fallback .pk-emoji {
+  display: inline;
+}
+.pk-icon img {
+  width: 40px;
+  height: 30px;
+  object-fit: contain;
+  margin: -4px 0;
+}
+.pk-inline img {
+  width: 28px;
+  height: 21px;
+  object-fit: contain;
+}
+.pk-big img {
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+}
+.skill-icon {
+  position: relative;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skill.locked .pk img {
+  filter: grayscale(1) brightness(0.6);
+}
+.skill-lock {
+  position: absolute;
+  right: -2px;
+  bottom: -4px;
+  font-size: 11px;
+}

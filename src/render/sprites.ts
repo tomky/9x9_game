@@ -321,72 +321,122 @@ export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w
   ctx.closePath();
 }
 
-/** 擋格型障礙（整格）。 */
-export function drawBlocker(ctx: CanvasRenderingContext2D, ob: Obstacle, cx: number, cy: number, size: number): void {
+/** 把 sprite 等比例畫在 (0,0) 中心，最長邊 = box。 */
+function drawSpriteFit(ctx: CanvasRenderingContext2D, sprite: Sprite, box: number, ox = 0, oy = 0): void {
+  const sw = sprite.width;
+  const sh = sprite.height;
+  if (!sw || !sh) return;
+  const fit = box / Math.max(sw, sh);
+  const dw = sw * fit;
+  const dh = sh * fit;
+  const dpr = ctx.getTransform().a || 1;
+  ctx.imageSmoothingEnabled = dw * dpr < sw;
+  ctx.drawImage(sprite, ox - dw / 2, oy - dh / 2, dw, dh);
+  ctx.imageSmoothingEnabled = true;
+}
+
+/** 擋格型障礙（整格）：底板 + 寶可夢（沒有 sprite 時用 emoji）。 */
+export function drawBlocker(ctx: CanvasRenderingContext2D, ob: Obstacle, cx: number, cy: number, size: number, sprite: Sprite | null = null): void {
   ctx.save();
   ctx.translate(cx, cy);
   const bg = ob.kind === 'tree' ? '#274c2b' : ob.kind === 'rock' ? '#4a4a55' : '#2f2a3a';
   ctx.fillStyle = bg;
   roundRect(ctx, -size * 0.46, -size * 0.46, size * 0.92, size * 0.92, size * 0.18);
   ctx.fill();
-  ctx.font = `${size * 0.6}px system-ui, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(OBSTACLE_EMOJI[ob.kind], 0, size * 0.04);
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+  ctx.lineWidth = size * 0.035;
+  ctx.stroke();
+  if (sprite) {
+    drawSpriteFit(ctx, sprite, size * 0.84);
+  } else {
+    ctx.font = `${size * 0.6}px system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(OBSTACLE_EMOJI[ob.kind], 0, size * 0.04);
+  }
   if (ob.kind === 'rock' && ob.hp <= 1) {
     // 裂痕
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.lineWidth = size * 0.04;
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = size * 0.045;
+    ctx.lineJoin = 'round';
     ctx.beginPath();
-    ctx.moveTo(-size * 0.3, -size * 0.35);
+    ctx.moveTo(-size * 0.3, -size * 0.38);
     ctx.lineTo(-size * 0.05, -size * 0.05);
     ctx.lineTo(-size * 0.2, size * 0.2);
-    ctx.lineTo(size * 0.1, size * 0.4);
+    ctx.lineTo(size * 0.1, size * 0.42);
     ctx.stroke();
   }
   ctx.restore();
 }
 
-/** 覆蓋型障礙（畫在寶石上方）。黑暗會完全遮住寶石。 */
-export function drawOverlay(ctx: CanvasRenderingContext2D, ob: Obstacle, cx: number, cy: number, size: number): void {
+/**
+ * 覆蓋型障礙（畫在寶石上方）。
+ * 黑暗：整格蓋住（看不到寶石）＋超音蝠；水窪 / 冰塊：淡色底 + 右下角小徽章，寶石仍看得見。
+ */
+export function drawOverlay(ctx: CanvasRenderingContext2D, ob: Obstacle, cx: number, cy: number, size: number, sprite: Sprite | null = null): void {
   ctx.save();
   ctx.translate(cx, cy);
   if (ob.kind === 'dark') {
     ctx.fillStyle = '#0a0b16';
     roundRect(ctx, -size * 0.46, -size * 0.46, size * 0.92, size * 0.92, size * 0.18);
     ctx.fill();
-    ctx.fillStyle = '#6c6f9a';
-    ctx.font = `800 ${size * 0.5}px system-ui, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('?', 0, size * 0.03);
-  } else if (ob.kind === 'water') {
-    ctx.fillStyle = 'rgba(40, 120, 255, 0.45)';
-    roundRect(ctx, -size * 0.46, -size * 0.46, size * 0.92, size * 0.92, size * 0.18);
+    if (sprite) {
+      ctx.globalAlpha = 0.85;
+      drawSpriteFit(ctx, sprite, size * 0.7);
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.fillStyle = '#6c6f9a';
+      ctx.font = `800 ${size * 0.5}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('?', 0, size * 0.03);
+    }
+  } else {
+    const water = ob.kind === 'water';
+    // 淡色外框 + 輕微色調，讓底下寶石維持清楚
+    ctx.fillStyle = water ? 'rgba(40, 120, 255, 0.22)' : 'rgba(190, 235, 255, 0.28)';
+    roundRect(ctx, -size * 0.47, -size * 0.47, size * 0.94, size * 0.94, size * 0.18);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(200,230,255,0.9)';
-    ctx.lineWidth = size * 0.05;
-    for (let i = -1; i <= 1; i++) {
+    ctx.strokeStyle = water ? 'rgba(90, 170, 255, 0.95)' : 'rgba(255,255,255,0.95)';
+    ctx.lineWidth = size * 0.06;
+    ctx.stroke();
+    if (water) {
+      ctx.strokeStyle = 'rgba(200,230,255,0.85)';
+      ctx.lineWidth = size * 0.04;
       ctx.beginPath();
-      const y = i * size * 0.22;
-      ctx.moveTo(-size * 0.34, y);
-      ctx.quadraticCurveTo(-size * 0.17, y - size * 0.1, 0, y);
-      ctx.quadraticCurveTo(size * 0.17, y + size * 0.1, size * 0.34, y);
+      const y = size * 0.36;
+      ctx.moveTo(-size * 0.4, y);
+      ctx.quadraticCurveTo(-size * 0.25, y - size * 0.08, -size * 0.1, y);
+      ctx.quadraticCurveTo(size * 0.05, y + size * 0.08, size * 0.2, y);
+      ctx.stroke();
+    } else {
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.lineWidth = size * 0.04;
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.4, -size * 0.2);
+      ctx.lineTo(-size * 0.25, -size * 0.35);
+      ctx.moveTo(-size * 0.4, -size * 0.35);
+      ctx.lineTo(-size * 0.25, -size * 0.2);
       ctx.stroke();
     }
-  } else if (ob.kind === 'ice') {
-    ctx.fillStyle = 'rgba(190, 235, 255, 0.55)';
-    roundRect(ctx, -size * 0.46, -size * 0.46, size * 0.92, size * 0.92, size * 0.18);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.95)';
-    ctx.lineWidth = size * 0.05;
-    ctx.stroke();
+    // 右下角徽章
+    const bx = size * 0.3;
+    const by = size * 0.3;
+    const br = size * 0.2;
+    ctx.fillStyle = water ? '#2f7fe6' : '#dff3ff';
     ctx.beginPath();
-    ctx.moveTo(-size * 0.3, -size * 0.1);
-    ctx.lineTo(-size * 0.05, size * 0.15);
-    ctx.moveTo(size * 0.05, -size * 0.3);
-    ctx.lineTo(size * 0.3, 0);
+    ctx.arc(bx, by, br, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = size * 0.03;
     ctx.stroke();
+    if (sprite) drawSpriteFit(ctx, sprite, br * 1.9, bx, by);
+    else {
+      ctx.font = `${br * 1.4}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(OBSTACLE_EMOJI[ob.kind], bx, by + br * 0.1);
+    }
   }
   ctx.restore();
 }

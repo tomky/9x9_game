@@ -4,7 +4,7 @@ import { Board, BLOCKER_KINDS, BOARD_W, Gem, Pos } from '../core/types';
 import { getCell, forEachCell } from '../core/board';
 import { ResolveEvent } from '../core/resolve';
 import { drawBlocker, drawGem, drawOverlay, roundRect } from './sprites';
-import { pokemonIdFor, SpriteStore } from './pokemon';
+import { OBSTACLE_POKEMON, pokemonIdFor, SpriteStore } from './pokemon';
 import { easeIn, easeInOut, easeOut, Tweens, wait } from './tweens';
 
 interface GemView {
@@ -266,16 +266,18 @@ export class Renderer {
         ctx.fillRect(x * cell, y * cell, cell, cell);
       }
 
+    const usePokemon = this.useSprites() && this.sprites.ready;
+    const obSprite = (kind: keyof typeof OBSTACLE_POKEMON) => (usePokemon ? this.sprites.get(OBSTACLE_POKEMON[kind].id) : null);
+
     // 擋格障礙
     forEachCell(board, (c, x, y) => {
       if (c.obstacle && BLOCKER_KINDS.has(c.obstacle.kind)) {
         const [dx, dy] = this.shakeOffset(x, y, now);
-        drawBlocker(ctx, c.obstacle, (x + 0.5) * cell + dx, (y + 0.5) * cell + dy, cell);
+        drawBlocker(ctx, c.obstacle, (x + 0.5) * cell + dx, (y + 0.5) * cell + dy, cell, obSprite(c.obstacle.kind));
       }
     });
 
     // 寶石（黑暗覆蓋的不畫）
-    const usePokemon = this.useSprites() && this.sprites.ready;
     const sorted = [...this.views.values()].sort((a, b) => a.y - b.y);
     for (const v of sorted) {
       const bx = Math.round(v.x);
@@ -291,7 +293,7 @@ export class Renderer {
     forEachCell(board, (c, x, y) => {
       if (c.obstacle && !BLOCKER_KINDS.has(c.obstacle.kind)) {
         const [dx, dy] = this.shakeOffset(x, y, now);
-        drawOverlay(ctx, c.obstacle, (x + 0.5) * cell + dx, (y + 0.5) * cell + dy, cell);
+        drawOverlay(ctx, c.obstacle, (x + 0.5) * cell + dx, (y + 0.5) * cell + dy, cell, obSprite(c.obstacle.kind));
       }
     });
 
