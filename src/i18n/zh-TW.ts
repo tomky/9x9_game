@@ -43,7 +43,6 @@ export const T = {
   unlock: '獲得新技能！',
   unlockDesc: (n: number, name: string) => `你已熟練 ${n} 的乘法，學會了「${name}」`,
   ok: '太棒了',
-  skillPartner: (name: string) => `搭檔：${name}`,
 
   skillLocked: (n: number) => `熟練 ${n} 的乘法解鎖`,
   skillMissing: (n: number, missing: number[]) => `差 ${missing.map((b) => `${n}×${b}`).join('、')}`,
@@ -77,7 +76,7 @@ export const T = {
   gemStyleLabel: '寶石樣式',
   gemStylePokemon: '寶可夢（需連線載入圖案）',
   gemStyleGem: '幾何寶石',
-  spriteCredit: '寶可夢圖案（寶石、障礙、技能）來自 PokeAPI，版權屬 Nintendo / Creatures / GAME FREAK，僅供學習用途',
+  spriteCredit: '寶可夢與道具圖案來自 PokeAPI，版權屬 Nintendo / Creatures / GAME FREAK，僅供學習用途',
   soundLabel: '音效',
   on: '開',
   off: '關',

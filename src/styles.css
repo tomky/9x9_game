@@ -551,19 +551,18 @@ body {
   display: inline;
 }
 .pk-icon img {
-  width: 40px;
+  width: 30px;
   height: 30px;
   object-fit: contain;
-  margin: -4px 0;
 }
 .pk-inline img {
-  width: 28px;
-  height: 21px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 .pk-big img {
-  width: 128px;
-  height: 128px;
+  width: 120px;
+  height: 120px;
   object-fit: contain;
 }
 .skill-icon {

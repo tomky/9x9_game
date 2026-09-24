@@ -4,7 +4,7 @@ import { Board, BLOCKER_KINDS, BOARD_W, Gem, Pos } from '../core/types';
 import { getCell, forEachCell } from '../core/board';
 import { ResolveEvent } from '../core/resolve';
 import { drawBlocker, drawGem, drawOverlay, roundRect } from './sprites';
-import { OBSTACLE_POKEMON, pokemonIdFor, SpriteStore } from './pokemon';
+import { OBSTACLE_ITEMS, pokemonIdFor, SpriteStore } from './pokemon';
 import { easeIn, easeInOut, easeOut, Tweens, wait } from './tweens';
 
 interface GemView {
@@ -267,7 +267,7 @@ export class Renderer {
       }
 
     const usePokemon = this.useSprites() && this.sprites.ready;
-    const obSprite = (kind: keyof typeof OBSTACLE_POKEMON) => (usePokemon ? this.sprites.get(OBSTACLE_POKEMON[kind].id) : null);
+    const obSprite = (kind: keyof typeof OBSTACLE_ITEMS) => (usePokemon ? this.sprites.getItem(OBSTACLE_ITEMS[kind].item) : null);
 
     // 擋格障礙
     forEachCell(board, (c, x, y) => {

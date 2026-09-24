@@ -4,7 +4,7 @@ import { Game } from '../core/game';
 import { SKILL_IDS, SKILLS } from '../core/skills';
 import { combosDone, missingCombos, STREAK_REQUIRED } from '../core/mastery';
 import { SKILL_EMOJI } from '../render/sprites';
-import { iconImg, SKILL_POKEMON } from '../render/pokemon';
+import { itemImg, SKILL_ITEMS } from '../render/pokemon';
 import { T } from '../i18n/zh-TW';
 
 export class Hud {
@@ -65,7 +65,7 @@ export class Hud {
         : T.skillLockedDetail(id, def.name, missing, stats.bestStreak, STREAK_REQUIRED);
       return `<div class="${cls}" data-id="${id}" title="${title}">
         <div class="skill-num">${id}</div>
-        <div class="skill-icon">${iconImg(SKILL_POKEMON[id].id, SKILL_EMOJI[id])}${unlocked ? '' : '<span class="skill-lock">🔒</span>'}</div>
+        <div class="skill-icon">${itemImg(SKILL_ITEMS[id].item, SKILL_EMOJI[id])}${unlocked ? '' : '<span class="skill-lock">🔒</span>'}</div>
         <div class="skill-name">${def.name}</div>
         ${progress}
       </div>`;
@@ -73,7 +73,7 @@ export class Hud {
 
     if (g.state === 'skill' && g.activeSkill) {
       const def = SKILLS[g.activeSkill];
-      this.showHint(`${SKILL_EMOJI[g.activeSkill]} ${SKILL_POKEMON[g.activeSkill].name}的${def.name}：${T.skillTargetHint[def.target]}（再點一次${T.cancel}）`, 0);
+      this.showHint(`${SKILL_EMOJI[g.activeSkill]} ${def.name}：${T.skillTargetHint[def.target]}（再點一次${T.cancel}）`, 0);
     } else if (this.hintTimer === 0) {
       this.hideHint();
     }

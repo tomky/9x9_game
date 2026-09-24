@@ -21,26 +21,26 @@ export const POKEMON_FAMILIES: Record<number, PokemonFamily> = {
 
 export const RAINBOW_POKEMON = { id: 151, name: '夢幻' };
 
-/** 障礙對應的寶可夢（畫在盤面上）。 */
-export const OBSTACLE_POKEMON: Record<ObstacleKind, { id: number; name: string }> = {
-  tree: { id: 185, name: '樹才怪' },
-  rock: { id: 74, name: '小拳石' },
-  boulder: { id: 76, name: '隆隆岩' },
-  dark: { id: 41, name: '超音蝠' },
-  water: { id: 60, name: '蚊香蝌蚪' },
-  ice: { id: 582, name: '迷你冰' },
+/** 障礙對應的遊戲道具圖示（PokeAPI items）。 */
+export const OBSTACLE_ITEMS: Record<ObstacleKind, { item: string; name: string }> = {
+  tree: { item: 'leaf-stone', name: '葉之石' },
+  rock: { item: 'hard-stone', name: '硬石頭' },
+  boulder: { item: 'smooth-rock', name: '光滑岩石' },
+  dark: { item: 'dusk-stone', name: '暗之石' },
+  water: { item: 'mystic-water', name: '神秘水滴' },
+  ice: { item: 'never-melt-ice', name: '不融冰' },
 };
 
-/** 技能對應的寶可夢（技能列 / 解鎖畫面圖示）。 */
-export const SKILL_POKEMON: Record<SkillId, { id: number; name: string }> = {
-  2: { id: 123, name: '飛天螳螂' },
-  3: { id: 66, name: '腕力' },
-  4: { id: 171, name: '燈籠魚' },
-  5: { id: 68, name: '怪力' },
-  6: { id: 131, name: '拉普拉斯' },
-  7: { id: 38, name: '九尾' },
-  8: { id: 144, name: '急凍鳥' },
-  9: { id: 243, name: '雷公' },
+/** 技能對應的招式機 / 道具圖示（技能列、解鎖畫面）。 */
+export const SKILL_ITEMS: Record<SkillId, { item: string; name: string }> = {
+  2: { item: 'hm-normal', name: '秘傳機' },
+  3: { item: 'hm-fighting', name: '秘傳機' },
+  4: { item: 'light-ball', name: '電氣球' },
+  5: { item: 'macho-brace', name: '強制鍛鍊器' },
+  6: { item: 'hm-water', name: '秘傳機' },
+  7: { item: 'tm-fire', name: '招式機' },
+  8: { item: 'tm-ice', name: '招式機' },
+  9: { item: 'tm-electric', name: '招式機' },
 };
 
 export const SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white';
@@ -49,15 +49,15 @@ export function spriteUrl(id: number): string {
   return `${SPRITE_BASE}/${id}.png`;
 }
 
-/** 選單用小圖示（DOM 技能列 / 關卡前導用）。 */
-export const ICON_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons';
-export function iconUrl(id: number): string {
-  return `${ICON_BASE}/${id}.png`;
+/** 道具圖示（30×30 像素）。 */
+export const ITEM_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items';
+export function itemUrl(item: string): string {
+  return `${ITEM_BASE}/${item}.png`;
 }
 
-/** 產生帶 emoji 備援的 <img>：圖載入失敗時顯示 emoji。 */
-export function iconImg(id: number, emoji: string, cls = 'pk-icon'): string {
-  return `<span class="pk ${cls}"><img src="${iconUrl(id)}" alt="" loading="lazy" onerror="this.parentElement.classList.add('fallback')"><span class="pk-emoji">${emoji}</span></span>`;
+/** 產生帶 emoji 備援的道具 <img>：圖載入失敗時顯示 emoji。 */
+export function itemImg(item: string, emoji: string, cls = 'pk-icon'): string {
+  return `<span class="pk ${cls}"><img src="${itemUrl(item)}" alt="" loading="lazy" onerror="this.parentElement.classList.add('fallback')"><span class="pk-emoji">${emoji}</span></span>`;
 }
 
 export function stageOf(gem: Gem): 0 | 1 | 2 {
@@ -82,48 +82,60 @@ export function pokemonNameFor(gem: Gem): string {
   return POKEMON_FAMILIES[gem.color].names[stageOf(gem)];
 }
 
-/** 盤面會用到的所有 sprite（寶石家族 + 夢幻 + 障礙）。 */
+/** 盤面會用到的所有寶可夢 sprite（寶石家族 + 夢幻）。 */
 export function allPokemonIds(): number[] {
   const ids = Object.values(POKEMON_FAMILIES).flatMap((f) => f.ids);
   ids.push(RAINBOW_POKEMON.id);
-  for (const o of Object.values(OBSTACLE_POKEMON)) ids.push(o.id);
   return ids;
+}
+
+/** 盤面會用到的所有道具圖示（障礙）。 */
+export function allObstacleItems(): string[] {
+  return Object.values(OBSTACLE_ITEMS).map((o) => o.item);
 }
 
 /** 裁掉透明留白後的圖案。 */
 export type Sprite = HTMLCanvasElement | HTMLImageElement;
 
-/** 平行載入所有 sprite 並裁掉四周透明留白；單張失敗只記錄，不影響其他。 */
+/** 平行載入所有 sprite（寶可夢 + 道具）並裁掉四周透明留白；單張失敗只記錄，不影響其他。 */
 export class SpriteStore {
-  private images = new Map<number, Sprite>();
+  private images = new Map<string, Sprite>();
   private loading: Promise<void> | null = null;
 
+  /** 至少有一張寶可夢 sprite 載入成功。 */
   get ready(): boolean {
-    return this.images.size > 0;
+    return allPokemonIds().some((id) => this.images.has(`p:${id}`));
   }
 
   get(id: number): Sprite | null {
-    return this.images.get(id) ?? null;
+    return this.images.get(`p:${id}`) ?? null;
+  }
+
+  getItem(item: string): Sprite | null {
+    return this.images.get(`i:${item}`) ?? null;
   }
 
   load(): Promise<void> {
-    this.loading ??= Promise.all(allPokemonIds().map((id) => this.loadOne(id))).then(() => undefined);
+    this.loading ??= Promise.all([
+      ...allPokemonIds().map((id) => this.loadOne(`p:${id}`, spriteUrl(id))),
+      ...allObstacleItems().map((item) => this.loadOne(`i:${item}`, itemUrl(item))),
+    ]).then(() => undefined);
     return this.loading;
   }
 
-  private loadOne(id: number): Promise<void> {
+  private loadOne(key: string, url: string): Promise<void> {
     return new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
-        this.images.set(id, cropTransparent(img));
+        this.images.set(key, cropTransparent(img));
         resolve();
       };
       img.onerror = () => {
-        console.warn(`[pokemon] sprite ${id} 載入失敗，改用幾何寶石`);
+        console.warn(`[pokemon] ${key} 載入失敗，改用備援圖形`);
         resolve();
       };
-      img.src = spriteUrl(id);
+      img.src = url;
     });
   }
 }
