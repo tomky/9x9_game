@@ -6,7 +6,7 @@ import { SKILLS } from '../core/skills';
 import { combosDone, isMastered, NUMBERS, STREAK_REQUIRED } from '../core/mastery';
 import { OBSTACLE_ORDER, OBSTACLE_INTRO_LEVEL } from '../core/obstacles';
 import { OBSTACLE_EMOJI, SKILL_EMOJI } from '../render/sprites';
-import { itemImg, itemUrl, OBSTACLE_ITEMS, SKILL_ITEMS } from '../render/pokemon';
+import { iconImg, itemImg, OBSTACLE_ITEMS, SKILL_POKEMON, spriteUrl } from '../render/pokemon';
 import { T } from '../i18n/zh-TW';
 
 export class Screens {
@@ -92,7 +92,7 @@ export class Screens {
     return new Promise((resolve) => {
       const items = ids
         .map(
-          (id) => `<div class="unlock-icon"><span class="pk pk-big"><img src="${itemUrl(SKILL_ITEMS[id].item)}" alt="" onerror="this.parentElement.classList.add('fallback')"><span class="pk-emoji">${SKILL_EMOJI[id]}</span></span></div>
+          (id) => `<div class="unlock-icon"><span class="pk pk-big"><img src="${spriteUrl(SKILL_POKEMON[id].id)}" alt="" onerror="this.parentElement.classList.add('fallback')"><span class="pk-emoji">${SKILL_EMOJI[id]}</span></span></div>
             <h2>${SKILLS[id].name}</h2>
             <p>${T.unlockDesc(id, SKILLS[id].name)}</p>
             <p>${SKILLS[id].description}</p>`,
@@ -116,7 +116,7 @@ export class Screens {
         const w = c.wrong > c.correct ? 'w' : '';
         return `<td class="${cls} ${w}" title="${n}×${b}：答對 ${c.correct}・答錯 ${c.wrong}">${c.correct || ''}</td>`;
       }).join('');
-      return `<tr><th class="${mastered ? 'mastered' : ''}">${mastered ? itemImg(SKILL_ITEMS[n as SkillId].item, SKILL_EMOJI[n], 'pk-inline') : n}</th>${cells}
+      return `<tr><th class="${mastered ? 'mastered' : ''}">${mastered ? iconImg(SKILL_POKEMON[n as SkillId].id, SKILL_EMOJI[n], 'pk-inline') : n}</th>${cells}
         <td style="width:auto;padding:0 8px;white-space:nowrap">${combosDone(s)}/8 · ${T.streak} ${Math.min(s.bestStreak, STREAK_REQUIRED)}/${STREAK_REQUIRED}${mastered ? ' ✅' : ''}</td></tr>`;
     }).join('');
     const card = this.show(`

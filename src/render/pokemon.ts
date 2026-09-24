@@ -31,22 +31,33 @@ export const OBSTACLE_ITEMS: Record<ObstacleKind, { item: string; name: string }
   ice: { item: 'never-melt-ice', name: '不融冰' },
 };
 
-/** 技能對應的招式機 / 道具圖示（技能列、解鎖畫面）。 */
-export const SKILL_ITEMS: Record<SkillId, { item: string; name: string }> = {
-  2: { item: 'hm-normal', name: '秘傳機' },
-  3: { item: 'hm-fighting', name: '秘傳機' },
-  4: { item: 'light-ball', name: '電氣球' },
-  5: { item: 'macho-brace', name: '強制鍛鍊器' },
-  6: { item: 'hm-water', name: '秘傳機' },
-  7: { item: 'tm-fire', name: '招式機' },
-  8: { item: 'tm-ice', name: '招式機' },
-  9: { item: 'tm-electric', name: '招式機' },
+/** 技能對應的搭檔寶可夢（技能列 / 解鎖畫面圖示）。 */
+export const SKILL_POKEMON: Record<SkillId, { id: number; name: string }> = {
+  2: { id: 123, name: '飛天螳螂' },
+  3: { id: 66, name: '腕力' },
+  4: { id: 171, name: '燈籠魚' },
+  5: { id: 68, name: '怪力' },
+  6: { id: 131, name: '拉普拉斯' },
+  7: { id: 38, name: '九尾' },
+  8: { id: 144, name: '急凍鳥' },
+  9: { id: 243, name: '雷公' },
 };
 
 export const SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white';
 
 export function spriteUrl(id: number): string {
   return `${SPRITE_BASE}/${id}.png`;
+}
+
+/** 寶可夢選單小圖示（DOM 用）。 */
+export const ICON_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons';
+export function iconUrl(id: number): string {
+  return `${ICON_BASE}/${id}.png`;
+}
+
+/** 產生帶 emoji 備援的寶可夢小圖示 <img>。 */
+export function iconImg(id: number, emoji: string, cls = 'pk-icon'): string {
+  return `<span class="pk ${cls}"><img src="${iconUrl(id)}" alt="" loading="lazy" onerror="this.parentElement.classList.add('fallback')"><span class="pk-emoji">${emoji}</span></span>`;
 }
 
 /** 道具圖示（30×30 像素）。 */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allObstacleItems, allPokemonIds, itemUrl, OBSTACLE_ITEMS, pokemonIdFor, pokemonNameFor, POKEMON_FAMILIES, RAINBOW_POKEMON, SKILL_ITEMS, spriteUrl } from '../src/render/pokemon';
+import { allObstacleItems, allPokemonIds, itemUrl, OBSTACLE_ITEMS, pokemonIdFor, pokemonNameFor, POKEMON_FAMILIES, RAINBOW_POKEMON, SKILL_POKEMON, spriteUrl } from '../src/render/pokemon';
 import { Gem } from '../src/core/types';
 
 const gem = (color: number, special: Gem['special'] = 'none'): Gem => ({ id: 1, color, special });
@@ -12,10 +12,12 @@ describe('寶可夢對應表', () => {
     expect(new Set(ids).size).toBe(19);
   });
 
-  it('障礙道具 6 種不重複；技能圖示 8 種', () => {
+  it('障礙道具 6 種不重複；技能搭檔 8 種且不與寶石家族重複', () => {
     expect(Object.keys(OBSTACLE_ITEMS).sort()).toEqual(['boulder', 'dark', 'ice', 'rock', 'tree', 'water']);
     expect(new Set(allObstacleItems()).size).toBe(6);
-    expect(Object.keys(SKILL_ITEMS).map(Number).sort()).toEqual([2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(Object.keys(SKILL_POKEMON).map(Number).sort()).toEqual([2, 3, 4, 5, 6, 7, 8, 9]);
+    const all = [...allPokemonIds(), ...Object.values(SKILL_POKEMON).map((s) => s.id)];
+    expect(new Set(all).size).toBe(all.length);
     expect(itemUrl('hard-stone')).toBe('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png');
   });
 
