@@ -65,7 +65,11 @@ export class Renderer {
     window.setInterval(() => {
       if (document.hidden) {
         this.tweens.update(performance.now());
-        this.draw(performance.now());
+        try {
+          this.draw(performance.now());
+        } catch (err) {
+          console.error('[renderer] draw failed', err);
+        }
       }
     }, 50);
   }
@@ -235,9 +239,14 @@ export class Renderer {
   // ---------- 繪製 ----------
 
   private frame(now: number): void {
-    this.tweens.update(now);
-    this.draw(now);
+    // 先排下一幀：就算這一幀繪圖拋錯，迴圈也不能死（否則補間永遠不完成，遊戲會卡住）
     requestAnimationFrame((t) => this.frame(t));
+    this.tweens.update(now);
+    try {
+      this.draw(now);
+    } catch (err) {
+      console.error('[renderer] draw failed', err);
+    }
   }
 
   private draw(now: number): void {

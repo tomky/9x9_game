@@ -93,6 +93,7 @@ export function drawGem(
   alpha = 1,
   sprite: Sprite | null = null,
 ): void {
+  if (scale <= 0.01 || alpha <= 0) return; // 消除動畫尾端：不畫，避免半徑為負等錯誤
   const r = size * 0.38 * scale;
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -305,7 +306,7 @@ function drawPokemon(ctx: CanvasRenderingContext2D, gem: Gem, sprite: Sprite, si
     ctx.strokeStyle = g ?? '#ffd166';
     ctx.lineWidth = size * 0.07;
     ctx.beginPath();
-    ctx.arc(0, 0, r - size * 0.03, 0, Math.PI * 2);
+    ctx.arc(0, 0, Math.max(0, r - size * 0.03 * scale), 0, Math.PI * 2);
     ctx.stroke();
   }
 }
